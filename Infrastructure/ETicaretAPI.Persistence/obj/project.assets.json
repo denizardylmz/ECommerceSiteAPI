@@ -544,6 +544,7 @@
         "framework": ".NETCoreApp,Version=v6.0",
         "dependencies": {
           "ETicaretAPI.Domain": "1.0.0",
+          "Microsoft.EntityFrameworkCore": "6.0.7",
           "Microsoft.Extensions.DependencyInjection": "6.0.0"
         },
         "compile": {
