@@ -15,16 +15,16 @@ public static class ServiceRegistration
     public static void AddPersistenceRegistration(this IServiceCollection collection)
     {
         collection.AddDbContext<ETicaretAPIDbContext>(options => 
-            options.UseNpgsql(Configurations.ConnectionString), ServiceLifetime.Singleton);
+            options.UseNpgsql(Configurations.ConnectionString));
 
-        collection.AddSingleton<IProductWriteRepository, ProductWriteRepository>();
-        collection.AddSingleton<IProductReadRepository, ProductReadRepository>();
+        collection.AddScoped<IProductWriteRepository, ProductWriteRepository>();
+        collection.AddScoped<IProductReadRepository, ProductReadRepository>();
         
-        collection.AddSingleton<IOrderWriteRepository, OrderWriteRepository>();
-        collection.AddSingleton<IOrderReadRepository, OrderReadRepository>();
+        collection.AddScoped<IOrderWriteRepository, OrderWriteRepository>();
+        collection.AddScoped<IOrderReadRepository, OrderReadRepository>();
         
-        collection.AddSingleton<ICustomerWriteRepository, CustomerWriteRepository>();
-        collection.AddSingleton<ICustomerReadRepository, CustomerReadRepository>();
+        collection.AddScoped<ICustomerWriteRepository, CustomerWriteRepository>();
+        collection.AddScoped<ICustomerReadRepository, CustomerReadRepository>();
         
     } 
 }
