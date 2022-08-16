@@ -1,10 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using ETicaretAPI.Application.Repositories.CustomerRep;
 using ETicaretAPI.Application.Repositories.OrderRep;
 using ETicaretAPI.Application.Repositories.ProductRep;
+using ETicaretAPI.Application.ViewModels.Products;
 using ETicaretAPI.Domain.Entities;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -17,34 +19,60 @@ namespace ETicaretAPI.API.Controllers
     public class TestController : ControllerBase
     {
         private readonly IProductReadRepository _productRead;
-
-        private readonly ICustomerReadRepository _customerRead;
+        private readonly IProductWriteRepository _productWrite;
         
-        private readonly IOrderWriteRepository _orderWrite;
-        private readonly IOrderReadRepository _orderRead;
-        
-        public TestController(
-            IOrderWriteRepository orderWrite, 
-            IOrderReadRepository orderRead, 
-            IProductReadRepository productRead, 
-            ICustomerReadRepository customerRead)
+        public TestController(IProductReadRepository productRead,
+            IProductWriteRepository productWrite)
         {
-            _orderWrite = orderWrite;
-            _orderRead = orderRead;
             _productRead = productRead;
-            _customerRead = customerRead;
+            _productWrite = productWrite;
+        }
+        
+        [HttpGet]
+        public async Task<IActionResult> Get()
+        {
+            return Ok(_productRead.GetAll(false));
         }
 
-        [HttpGet]
-        public async Task Get()
+        [HttpGet("{id}")]
+        public async Task<IActionResult> Get(string id)
         {
-            var order =  await _orderRead.GetByIdAsync("c19b0934-3db5-4934-a2ca-837484ee22ce");
+            return Ok(await _productRead.GetByIdAsync(id, false));
+        }
 
-            order.Address = "Bursa";
 
-            await _orderWrite.SaveAsync();
-            
-            Console.WriteLine();
+        [HttpPost]
+        public async Task<IActionResult> Post(VM_Create_Product model) //Normally, We dont use entity while getting request.
+        {
+            await _productWrite.AddAsync(new Product()
+            {
+                Name = model.Name,
+                Price = model.Price,
+                Stock = model.Stock
+            });
+            await _productWrite.SaveAsync();
+            return Ok(StatusCode((int)HttpStatusCode.Created));
+        }
+
+
+        [HttpPut]
+        public async Task<IActionResult> Put(VM_Update_Product model)
+        {
+            Product product = await _productRead.GetByIdAsync(model.Id);
+            product.Stock = model.Stock;
+            product.Name = model.Name;
+            product.Price = model.Price;
+            await _productWrite.SaveAsync();
+            return Ok();
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(string id)
+        {
+            await _productWrite.RemoveAsync(id);
+            await _productWrite.SaveAsync();
+
+            return Ok();
         }
     }
 }
